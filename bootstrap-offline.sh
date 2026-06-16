@@ -132,7 +132,7 @@ download_and_load_image() {
     printf '{ "id": "%s"%s }\n' "$layerId" "${parentId:+, \"parent\": \"$parentId\"}" \
       > "$img_dir/$layerId/json"
 
-    local layerFile="$layerId/layer.blob"
+    local layerFile="$layerId/layer"
     layerFiles+=("$layerFile")
 
     echo "    Layer $((i+1))/$layersCount..."
@@ -141,8 +141,7 @@ download_and_load_image() {
       -o "$img_dir/$layerFile"
     # quick sanity check: file should be gzip compressed
     if ! file "$img_dir/$layerFile" 2>/dev/null | grep -qi "gzip compressed"; then
-      echo "    WARNING: layer doesn't look like gzip data, retrying with pipe method..."
-      # fallback: pipe directly to docker to avoid proxy tampering
+      echo "    WARNING: layer doesn't look like gzip data, retrying..."
       curl -L -s --compressed -H "Authorization: Bearer $token" \
         "https://registry-1.docker.io/v2/$image/blobs/$layerDigest" \
         -o "$img_dir/$layerFile"
